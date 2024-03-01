@@ -360,6 +360,7 @@ class Visualizer extends React.PureComponent {
         tryPause: () => {
             // delay 500ms to let buffer executed. and status propagated
             setTimeout(() => {
+                console.log('testtest', this.state.gcode.received, this.state.gcode.sent);
                 if (this.state.gcode.received + 1 >= this.state.gcode.sent) {
                     const workPosition = this.state.workPosition;
 
@@ -373,6 +374,7 @@ class Visualizer extends React.PureComponent {
                             e: Number(workPosition.e)
                         }
                     };
+                    console.log('testtest', this.pauseStatus.headStatus);
                     if (this.pauseStatus.headStatus) {
                         this.props.executeGcode('M5');
                     }
