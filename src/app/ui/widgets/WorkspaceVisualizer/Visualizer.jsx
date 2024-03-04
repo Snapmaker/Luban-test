@@ -374,8 +374,8 @@ class Visualizer extends React.PureComponent {
                             e: Number(workPosition.e)
                         }
                     };
-                    console.log('testtest', this.pauseStatus.headStatus);
-                    if (this.pauseStatus.headStatus) {
+                    console.log('testtest', this.pauseStatus.headStatus, this.props.headType);
+                    if (this.pauseStatus.headStatus || this.props.headType !== HEAD_PRINTING) {
                         this.props.executeGcode('M5');
                     }
 

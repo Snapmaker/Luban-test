@@ -425,6 +425,7 @@ class MarlinController extends EventEmitter {
         this.controller.on('headStatus', (res) => {
             // log.silly(`controller.on('originOffset'): source=${this.history.writeSource},
             //      line=${JSON.stringify(this.history.writeLine)}, res=${JSON.stringify(res)}`);
+            log.info(`$$$:${this.controller.state.headStatus}`);
             if (includes([WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER], this.history.writeSource)) {
                 this.emitAll('serialport:read', { data: res.raw });
             }

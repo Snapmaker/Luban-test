@@ -17,6 +17,7 @@ import {
     HEAD_LASER,
     HEAD_PRINTING,
 } from '../constants';
+import logger from '../../lib/logger';
 
 // http://stackoverflow.com/questions/10454518/javascript-how-to-retrieve-the-number-of-decimals-of-a-string-number
 function decimalPlaces(num) {
@@ -33,6 +34,8 @@ function decimalPlaces(num) {
     );
 }
 
+
+const log = logger('Marlin');
 
 /**
  * Reply parser for tool head type (M1006)
@@ -1039,6 +1042,7 @@ class Marlin extends events.EventEmitter {
             this.emit('headPower', payload);
         } else if (type === MarlinReplyParserHeadStatus) {
             if (this.state.headStatus !== payload.headStatus) {
+                log.info(`$$$:${this.state.headStatus}, headStatus: ${payload.headStatus}`);
                 this.setState({ headStatus: payload.headStatus });
             }
             this.emit('headStatus', payload);
