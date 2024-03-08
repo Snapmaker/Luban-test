@@ -5,6 +5,7 @@ import map from 'lodash/map';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { Switch } from 'antd';
 import { controller } from '../../../communication/socket-communication';
 import {
     HEAD_PRINTING,
@@ -14,12 +15,14 @@ import {
 import { RootState } from '../../../flux/index.def';
 import { actions as widgetsActions } from '../../../flux/widget';
 import { actions as workspaceActions } from '../../../flux/workspace';
+// import { actions as laserActions } from '../../../flux/laser';
 import { MachineAgent } from '../../../flux/workspace/MachineAgent';
 import usePrevious from '../../../lib/hooks/previous';
 import { in2mm, mm2in } from '../../../lib/units';
 import ControlPanel from './ControlPanel';
 import DisplayPanel from './DisplayPanel';
 import { DEFAULT_AXES, DISTANCE_MAX, DISTANCE_MIN, DISTANCE_STEP } from './constants';
+import i18n from '../../../lib/i18n';
 
 const DEFAULT_SPEED_OPTIONS = [
     {
@@ -64,9 +67,10 @@ const normalizeToRange = (n, min, max) => {
 
 declare interface ConnectionControlProps {
     widgetId: string;
+    isInWorkspace: boolean
 }
 
-const Control: React.FC<ConnectionControlProps> = ({ widgetId }) => {
+const Control: React.FC<ConnectionControlProps> = ({ widgetId, isInWorkspace }) => {
     const dispatch = useDispatch();
 
     const { widgets } = useSelector((state: RootState) => state.widget);
@@ -83,6 +87,7 @@ const Control: React.FC<ConnectionControlProps> = ({ widgetId }) => {
         boundingBox
     } = useSelector((state: RootState) => state.workspace);
 
+    // const { enableABPositionShortcut } = useSelector((state: RootState) => state.laser);
 
     const { jog, axes } = widgets[widgetId];
     const { speed = 1500, keypad, selectedDistance, customDistance, selectedAngle, customAngle } = jog;
@@ -151,7 +156,10 @@ const Control: React.FC<ConnectionControlProps> = ({ widgetId }) => {
                     y: 0,
                     z: 0
                 }
-            }
+            },
+
+            // enableShortcut
+            enableShortcut: false
         };
     }
 
@@ -429,14 +437,26 @@ const Control: React.FC<ConnectionControlProps> = ({ widgetId }) => {
 
     return (
         <div>
-            <DisplayPanel
-                workPosition={workPosition}
-                originOffset={state.originOffset}
-                headType={headType}
-                executeGcode={actions.executeGcode}
-                state={state}
-            />
+            {!isInWorkspace && (
+                <DisplayPanel
+                    workPosition={workPosition}
+                    originOffset={state.originOffset}
+                    headType={headType}
+                    executeGcode={actions.executeGcode}
+                    state={state}
+                />
+            )}
 
+            {isInWorkspace && (
+                <div className="sm-flex justify-space-between margin-vertical-8">
+                    <span>{i18n._('key-Workspace/Console-Keyboard Shortcuts')}</span>
+                    <Switch
+                        onClick={() => setState(stateBefore => ({ ...state, enableShortcut: !stateBefore.enableShortcut }))}
+                        disabled={!canClick}
+                        checked={state.enableShortcut}
+                    />
+                </div>
+            )}
             {/* Comment this since Luban v4.0 and will be used in the future */}
             {/* <div>
                 <KeypadOverlay
@@ -454,11 +474,14 @@ const Control: React.FC<ConnectionControlProps> = ({ widgetId }) => {
             </div> */}
 
             <ControlPanel
+                enableShortcut={state.enableShortcut}
                 disabled={!canClick}
                 state={state}
                 workPosition={workPosition}
+                originOffset={state.originOffset}
                 actions={actions}
                 executeGcode={actions.executeGcode}
+                isInWorkspace={isInWorkspace}
             />
         </div>
     );
