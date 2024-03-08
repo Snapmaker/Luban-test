@@ -3,11 +3,13 @@ import { MachineType } from '@snapmaker/luban-platform';
 
 import {
     L20WLaserToolModule,
+    L2WLaserToolModule,
     L40WLaserToolModule,
     dualExtrusionPrintToolHead,
     highPower10WLaserToolHead,
     highPower200WCNCToolHead,
 } from './snapmaker-2-toolheads';
+import { JobOffsetMode } from '../constants/coordinate';
 
 
 /*
@@ -46,6 +48,12 @@ export const machine: Machine = {
                     max: [410, 410, 420],
                 },
                 supportCameraCapture: true,
+                runBoundaryModeOptions: [
+                    {
+                        label: 'Laser Spot',
+                        value: JobOffsetMode.Crosshair,
+                    }
+                ]
             },
             {
                 identifier: L20WLaserToolModule.identifier,
@@ -55,6 +63,12 @@ export const machine: Machine = {
                     max: [410, 410, 0], // Correct this later
                 },
                 disableRemoteStartPrint: true,
+                runBoundaryModeOptions: [
+                    {
+                        label: 'Crosshair',
+                        value: JobOffsetMode.Crosshair,
+                    }
+                ]
             },
             {
                 identifier: L40WLaserToolModule.identifier,
@@ -64,6 +78,27 @@ export const machine: Machine = {
                     max: [410, 410, 0], // Correct this later
                 },
                 disableRemoteStartPrint: true,
+                runBoundaryModeOptions: [
+                    {
+                        label: 'Crosshair',
+                        value: JobOffsetMode.Crosshair,
+                    }
+                ]
+            },
+            {
+                identifier: L2WLaserToolModule.identifier,
+                configPath: 'laser/a400_40w', // 'laser/a400_2w',
+                // workRange: {
+                //     min: [0, 0, 0],
+                //     max: [410, 410, 0], // Correct this later
+                // },
+                disableRemoteStartPrint: true,
+                runBoundaryModeOptions: [
+                    {
+                        label: 'Crosshair',
+                        value: JobOffsetMode.Crosshair,
+                    }
+                ]
             },
             {
                 identifier: highPower200WCNCToolHead.identifier,
