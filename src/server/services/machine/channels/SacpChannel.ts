@@ -1030,7 +1030,7 @@ class SacpChannelBase extends Channel implements
                 b: originCoordinate[4]?.value
             };
             const isHomed = !(coordinateInfos?.homed); // 0: homed, 1: need to home
-            console.log('pos', pos, 'originOffset', originOffset, isHomed);
+            // console.log('pos', pos, 'originOffset', originOffset, isHomed);
             stateData = {
                 ...stateData,
                 pos,
@@ -1549,7 +1549,7 @@ class SacpChannelBase extends Channel implements
             return;
         }
         const { laserToolHeadInfo } = await this.sacpClient.getLaserToolHeadInfo(headModule.key);
-        log.debug(`laserFocalLength:${laserToolHeadInfo.laserFocalLength}, materialThickness: ${materialThickness}, platformHeight:${laserToolHeadInfo.platformHeight}`);
+        log.info(`laserFocalLength:${laserToolHeadInfo.laserFocalLength}, materialThickness: ${materialThickness}, platformHeight:${laserToolHeadInfo.platformHeight}`);
         await this.setAbsoluteWorkOrigin({
             z: laserToolHeadInfo.laserFocalLength + laserToolHeadInfo.platformHeight + materialThickness,
             isRotate
