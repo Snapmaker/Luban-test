@@ -577,6 +577,7 @@ const NetworkConnection: React.FC = () => {
             }
         }
 
+        console.log('==========================', moduleStatusList, airPurifierHasPower);
         Object.keys(moduleStatusList).forEach((key) => {
             if (moduleStatusList[key]) {
                 newModuleStatusList.push({
