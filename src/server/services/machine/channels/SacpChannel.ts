@@ -69,6 +69,7 @@ import Channel, {
     UploadFileOptions,
 } from './Channel';
 import { ChannelEvent } from './ChannelEvent';
+import { L2WLaserToolModule } from '../../../../app/machines/snapmaker-2-toolheads';
 
 const log = logger('machine:channels:SacpChannel');
 
@@ -856,6 +857,7 @@ class SacpChannelBase extends Channel implements
             }, 10000);
 
             this.machineStatus = WORKFLOW_STATUS_MAP[statusKey];
+            // console.log('111111111pos', stateData.pos, 'originOffset', stateData.originOffset, stateData.isHomed);
 
             // TODO: Refactor this
             this.socket && this.socket.emit('Marlin:state', {
@@ -1030,7 +1032,6 @@ class SacpChannelBase extends Channel implements
                 b: originCoordinate[4]?.value
             };
             const isHomed = !(coordinateInfos?.homed); // 0: homed, 1: need to home
-            console.log('pos', pos, 'originOffset', originOffset, isHomed);
             stateData = {
                 ...stateData,
                 pos,
@@ -1169,6 +1170,10 @@ class SacpChannelBase extends Channel implements
         this.sacpClient.subscribePurifierInfo({ interval: 1000 }, this.subscribePurifierInfoCallback).then(res => {
             log.info(`subscribe purifier info, ${res.response.result}`);
         });
+
+        // setInterval(() => {
+        //     this.sacpClient.setMotorPowerHoldMode(MotorPowerMode. )
+        // })
     };
 
     public setROTSubscribeApi = () => {
@@ -1552,8 +1557,14 @@ class SacpChannelBase extends Channel implements
         }
         const { laserToolHeadInfo } = await this.sacpClient.getLaserToolHeadInfo(headModule.key);
         log.info(`laserFocalLength:${laserToolHeadInfo.laserFocalLength}, materialThickness: ${materialThickness}, platformHeight:${laserToolHeadInfo.platformHeight}`);
+        let z;
+        if (includes([L2WLaserToolModule.identifier], toolHead)) {
+            z = laserToolHeadInfo.platformHeight + materialThickness;
+        } else {
+            z = laserToolHeadInfo.laserFocalLength + laserToolHeadInfo.platformHeight + materialThickness;
+        }
         await this.setAbsoluteWorkOrigin({
-            z: laserToolHeadInfo.laserFocalLength + laserToolHeadInfo.platformHeight + materialThickness,
+            z,
             isRotate
         });
     }
