@@ -37,6 +37,7 @@ import {
     AIR_PURIFIER,
     AIR_PURIFIER_MODULE_IDS,
     CNC_HEAD_MODULE_IDS,
+    DUAL_EXTRUDER_TOOLHEAD_FOR_ARTISAN,
     DUAL_EXTRUDER_TOOLHEAD_FOR_SM2,
     EMERGENCY_STOP_BUTTON,
     ENCLOSURE_MODULE_IDS,
@@ -337,6 +338,22 @@ class SacpChannelBase extends Channel implements
         return machineInfo;
     }
 
+
+    public getModuleIdentifier(module: ModuleInfo): string {
+        // hard-code for artisan, 2.0 dualextruder and artisan dualextruder have same moduleId
+        if (module.moduleId === 13) {
+            if (module.hardwareVersion >= 129 || module.hardwareVersion <= 137) {
+                // aritsan dualextruder
+                return MODULEID_MAP['13'];
+            } else {
+                // 2.0 dualextruder
+                return MODULEID_MAP['70000'];
+            }
+        } else {
+            return MODULEID_MAP[module.moduleId];
+        }
+    }
+
     /**
      * Get module info.
      */
@@ -347,9 +364,10 @@ class SacpChannelBase extends Channel implements
 
         // save module info in channel
         this.moduleInfos = {};
+        console.log('get module infos', moduleInfoList);
         for (const module of moduleInfoList) {
             if (includes(definedModuleIds, String(module.moduleId))) {
-                const identifier = MODULEID_MAP[module.moduleId];
+                const identifier = this.getModuleIdentifier(module);
 
                 if (!this.moduleInfos[identifier]) {
                     this.moduleInfos[identifier] = module;
@@ -1317,7 +1335,11 @@ class SacpChannelBase extends Channel implements
     private getToolHeadModule(extruderIndex: number | string): { module: ModuleInfo, extruderIndex: number } {
         extruderIndex = Number(extruderIndex);
 
-        const modules = this.moduleInfos && (this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_SM2] || this.moduleInfos[SINGLE_EXTRUDER_TOOLHEAD_FOR_SM2]);
+        const modules = this.moduleInfos && (
+            this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_SM2]
+            || this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_ARTISAN]
+            || this.moduleInfos[SINGLE_EXTRUDER_TOOLHEAD_FOR_SM2]
+        );
         if (!modules) {
             return null;
         }
@@ -1442,7 +1464,9 @@ class SacpChannelBase extends Channel implements
 
     public async updateNozzleOffset(extruderIndex, direction, distance) {
         const toolHead = this.moduleInfos
-            && (this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_SM2] || this.moduleInfos[SINGLE_EXTRUDER_TOOLHEAD_FOR_SM2]);
+            && (this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_SM2]
+                || this.moduleInfos[DUAL_EXTRUDER_TOOLHEAD_FOR_ARTISAN]
+                 || this.moduleInfos[SINGLE_EXTRUDER_TOOLHEAD_FOR_SM2]);
         // || this.moduleInfos[HEADT_BED_FOR_SM2]); //
         if (!toolHead) {
             log.error(`non-eixst toolHead 3dp, moduleInfos:${this.moduleInfos}`,);
