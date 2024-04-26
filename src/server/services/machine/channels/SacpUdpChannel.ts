@@ -136,7 +136,7 @@ class SacpUdpChannel extends SacpChannelBase {
     }
 
     public goHome = async () => {
-        console.log('dddddjjjjj goHome');
+        log.info(' ==========================  for debug goHome via sacp api');
         await this.sacpClient.requestHome().then(({ response }) => {
             log.info(`Go-Home, ${response}`);
             this.socket && this.socket.emit('serialport:read', { data: response.result === 0 ? 'OK' : 'WARNING' });
